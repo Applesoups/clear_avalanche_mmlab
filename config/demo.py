@@ -60,7 +60,7 @@ loggers=[
     dict(type='TensorboardLogger'),
     dict(type='TextLogger', file='log.txt'),
     dict(type='InteractiveLogger'),
-    #dict(type='WandBLogger', project_name='avalanche', run_name='test')
+    dict(type='WandBLogger', project_name='avalanche', run_name='clear_resnet50')
 ]
 
 metrics=[
