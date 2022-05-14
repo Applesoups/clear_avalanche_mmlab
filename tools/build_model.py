@@ -41,5 +41,4 @@ class Complete_Model(BaseModule):
 def Build_model(cfg):
     model_cfg=copy.deepcopy(cfg.model)
     model=Complete_Model(**model_cfg)
-    print(model)
     return model

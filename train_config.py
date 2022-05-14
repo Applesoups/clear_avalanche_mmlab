@@ -14,7 +14,6 @@ def main():
     cfg = Config.fromfile(args.config)
     scenario=Build_scenario(cfg)
     model=Build_model(cfg)
-    print(model)
     eval_plugin=Build_eval_plugin(cfg,scenario)
     cl_strategy=Build_cl_strategy(cfg, model, args.device,eval_plugin)
     
