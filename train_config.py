@@ -1,5 +1,6 @@
 import argparse
 from mmcv import Config
+import torch.nn
 from tools import Build_scenario, Build_model,Build_eval_plugin, Build_cl_strategy
 
 def parse_args():
@@ -14,6 +15,7 @@ def main():
     cfg = Config.fromfile(args.config)
     scenario=Build_scenario(cfg)
     model=Build_model(cfg)
+    model=model.to(args.device)
     eval_plugin=Build_eval_plugin(cfg,scenario)
     cl_strategy=Build_cl_strategy(cfg, model, args.device,eval_plugin)
     

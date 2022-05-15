@@ -1,5 +1,6 @@
 from avalanche import models
 from mmcv.runner.base_module import BaseModule
+from torch import nn
 from mmcls.models.builder import CLASSIFIERS, build_backbone,  build_neck
 from . import heads
 import copy
@@ -7,14 +8,22 @@ import copy
 class Complete_Model(BaseModule):
 
     def __init__(self,
-                 backbone,
+                 backbone=None,
                  neck=None,
                  head=None,
+                 torchmodel=None,
                  init_cfg=None):
         super(Complete_Model, self).__init__(init_cfg)
-
-        self.backbone = build_backbone(backbone)
-
+        if torchmodel is not None:
+            model_cfg=copy.deepcopy(torchmodel)
+            model_type=getattr(nn, model_cfg.pop('type'))
+            self.model=model_type(**model_cfg)
+        else:
+            self.model=None
+        if neck is not None:
+            self.backbone = build_backbone(backbone)
+        else:
+            self.backbone = None
         if neck is not None:
             self.neck = build_neck(neck)
         else:
@@ -26,7 +35,10 @@ class Complete_Model(BaseModule):
         else:
             self.head=None
     def forward(self,x):
-        x=self.backbone(x)
+        if self.model:
+            return self.model(x)
+        if self.backbone:
+            x=self.backbone(x)
         if self.neck:
             x=self.neck(x)
         if self.head:

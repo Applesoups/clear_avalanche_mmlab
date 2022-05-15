@@ -114,6 +114,20 @@ model=dict(
     )
 ```
 
+若想要直接使用torch.nn中的model，则不用提供backbone，neck和head
+
+```python
+model=dict(
+    torchmodel=dict(
+        type='Linear',
+        in_features=2048,
+        out_features=class_number,
+    )
+)
+```
+
+
+
 ### loggers&metrics
 
 使用的是avalanche的loggers和metrics，具体功能请查看avalanche教程。
@@ -140,7 +154,7 @@ metrics=[
 
 ### cl_strategy
 
-需要提供strategy type，使用的是avalanche.training.supervised（老版本的库位置会不同）中的strategy，具体内容请看教程和continual ai提供的continual learning course。其中需要提供optimizer和loss，optimizer使用的是torch.optim库，losses使用的是mmcls.models库。
+需要提供strategy type，使用的是avalanche.training.supervised（老版本的库位置会不同）中的strategy，具体内容请看教程和continual ai提供的continual learning course。其中需要提供optimizer，scheduler和loss，optimizer和scheduler使用的是torch.optim库，losses使用的是mmcls.models库。
 
 ```python
 cl_strategy=dict(
@@ -154,11 +168,15 @@ cl_strategy=dict(
         weight_decay=0.05,
         eps=1e-8,
         betas=(0.9, 0.999)),
-    #optimizer_config = dict(grad_clip=dict(max_norm=5.0))
+    scheduler=dict(
+        type='StepLR',
+        step_size=60,
+        gamma=0.1),
     loss = dict(
         type='CrossEntropyLoss',
         loss_weight=1.0
     )
+    
 )
 ```
 

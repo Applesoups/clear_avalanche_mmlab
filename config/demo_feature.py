@@ -2,9 +2,9 @@ from cv2 import PARAM_SCALAR
 
 
 dataset_type = 'CLEAR'
-#feature='moco_b0'
+feature='moco_b0'
 class_number=11
-batch_size=64
+batch_size=256
 img_norm_cfg=dict(
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
 )
@@ -28,7 +28,7 @@ scenario=dict(
     eval_transform=test_pipeline,
     dataset_root='dataset/CLEAR-10-PUBLIC/',
     evaluation_protocol= "streaming",
-    #feature_type = feature,
+    feature_type = feature,
     seed = None
     )
 
@@ -42,25 +42,17 @@ scenario=dict(
 # )
 
 model=dict(
-    backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(3, ),
-        style='pytorch'),
-    neck=dict(type='GlobalAveragePooling'),
-    head=dict(
-        type='LinearClsHead',
-        num_classes=class_number,
-        in_channels=2048,
-        init_cfg=dict(type='Normal', layer='Linear', std=0.01)
+    torchmodel=dict(
+        type='Linear',
+        in_features=2048,
+        out_features=class_number,
     )
 )
 loggers=[
     dict(type='TensorboardLogger'),
     dict(type='TextLogger', file='log.txt'),
     dict(type='InteractiveLogger'),
-    #dict(type='WandBLogger', project_name='avalanche', run_name='clear_resnet50')
+    #dict(type='WandBLogger', project_name='avalanche', run_name='clear_feature')
 ]
 
 metrics=[
@@ -89,7 +81,7 @@ cl_strategy=dict(
     type='Naive',
     train_mb_size=batch_size,
     eval_mb_size=batch_size,
-    train_epochs=100,
+    train_epochs=10,
     optimizer = dict(
         type='AdamW',
         lr=5e-4*batch_size/512,
@@ -100,7 +92,6 @@ cl_strategy=dict(
         type='StepLR',
         step_size=60,
         gamma=0.1),
-    #optimizer_config = dict(grad_clip=dict(max_norm=5.0))
     loss = dict(
         type='CrossEntropyLoss',
         loss_weight=1.0
