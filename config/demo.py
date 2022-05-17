@@ -4,7 +4,7 @@ from cv2 import PARAM_SCALAR
 dataset_type = 'CLEAR'
 #feature='moco_b0'
 class_number=11
-batch_size=64
+batch_size=32
 img_norm_cfg=dict(
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
 )
@@ -89,7 +89,7 @@ cl_strategy=dict(
     type='Naive',
     train_mb_size=batch_size,
     eval_mb_size=batch_size,
-    train_epochs=100,
+    train_epochs=10,
     optimizer = dict(
         type='AdamW',
         lr=5e-4*batch_size/512,
@@ -105,4 +105,9 @@ cl_strategy=dict(
         type='CrossEntropyLoss',
         loss_weight=1.0
     )
+)
+
+save_model=dict(
+    model_root='models',
+    frequency=2
 )

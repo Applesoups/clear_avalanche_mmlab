@@ -97,3 +97,8 @@ cl_strategy=dict(
         loss_weight=1.0
     )
 )
+
+save_model=dict(
+    model_root='models',
+    frequency=10
+)
