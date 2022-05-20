@@ -78,6 +78,8 @@ class SupervisedTemplate(BaseSGDTemplate):
         evaluator=default_evaluator,
         eval_every=-1,
         peval_mode="epoch",
+
+        distributed=False,
     ):
         """Init.
 
@@ -111,9 +113,11 @@ class SupervisedTemplate(BaseSGDTemplate):
             evaluator=evaluator,
             eval_every=eval_every,
             peval_mode=peval_mode,
+            
+            distributed=False
         )
         self._criterion = criterion
-
+        self.distributed=distributed
         ###################################################################
         # State variables. These are updated during the train/eval loops. #
         ###################################################################
@@ -212,16 +216,29 @@ class SupervisedTemplate(BaseSGDTemplate):
 
         if parse_version(torch.__version__) >= parse_version("1.7.0"):
             other_dataloader_args["persistent_workers"] = persistent_workers
+            if self.distributed:
+                other_dataloader_args['sampler'] =  torch.utils.data.distributed.DistributedSampler(self.adapted_dataset)
 
-        self.dataloader = TaskBalancedDataLoader(
-            self.adapted_dataset,
-            oversample_small_groups=True,
-            num_workers=num_workers,
-            batch_size=self.train_mb_size,
-            shuffle=shuffle,
-            pin_memory=pin_memory,
-            **other_dataloader_args
-        )
+                self.dataloader = TaskBalancedDataLoader(
+                    self.adapted_dataset,
+                    oversample_small_groups=True,
+                    num_workers=num_workers,
+                    batch_size=self.train_mb_size,
+                    shuffle=False,
+                    pin_memory=pin_memory,
+                    **other_dataloader_args
+                )
+            else:
+                print('no distributed')
+                self.dataloader = TaskBalancedDataLoader(
+                    self.adapted_dataset,
+                    oversample_small_groups=True,
+                    num_workers=num_workers,
+                    batch_size=self.train_mb_size,
+                    shuffle=shuffle,
+                    pin_memory=pin_memory,
+                    **other_dataloader_args
+                )
 
     def make_eval_dataloader(
         self, num_workers=0, pin_memory=True, persistent_workers=False, **kwargs
@@ -240,7 +257,8 @@ class SupervisedTemplate(BaseSGDTemplate):
 
         if parse_version(torch.__version__) >= parse_version("1.7.0"):
             other_dataloader_args["persistent_workers"] = persistent_workers
-
+            # if self.device == 'cuda':
+            #     other_dataloader_args['sampler'] =  torch.utils.data.distributed.DistributedSampler(self.adapted_dataset)
         self.dataloader = DataLoader(
             self.adapted_dataset,
             num_workers=num_workers,

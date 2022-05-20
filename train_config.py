@@ -1,17 +1,21 @@
 from importlib.resources import path
-import os
-import sys
-import json
 from pathlib import Path
 import argparse
 from mmcv import Config
 import torch.nn
 from tools import Build_scenario, Build_model,Build_eval_plugin, Build_cl_strategy
 import datetime
+import os
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a model')
     parser.add_argument('config', help='train config file path')
     parser.add_argument('--device',help='choose from cuda and cpu',default='cuda')
+    parser.add_argument('--local_rank', default=-1, type=int,
+                    help='node rank for distributed training')
+    # parser.add_argument('--distributed', default=False, type=bool,
+    #                 help='whether to use distributed training')
     args = parser.parse_args()
     return args
 
@@ -20,9 +24,24 @@ def main():
     cfg = Config.fromfile(args.config)
     scenario=Build_scenario(cfg)
     model=Build_model(cfg)
-    model=model.to(args.device)
+    model=model
+
+    if 'WORLD_SIZE' in os.environ:
+        args.distributed = int(os.environ['WORLD_SIZE']) > 1
+    else:
+        args.distributed=False
+    if args.distributed:
+        # FOR DISTRIBUTED:  Set the device according to local_rank.
+        torch.cuda.set_device(args.local_rank)
+
+        # FOR DISTRIBUTED:  Initialize the backend.  torch.distributed.launch will provide
+        # environment variables, and requires that you use init_method=`env://`.
+        torch.distributed.init_process_group(backend='nccl',
+                                            init_method='env://')
+
     eval_plugin=Build_eval_plugin(cfg,scenario)
-    cl_strategy=Build_cl_strategy(cfg, model, args.device,eval_plugin)
+    cl_strategy, model=Build_cl_strategy(cfg, model, args.device,eval_plugin,args)
+
     
     # print('Starting experiment...')
     # results = []

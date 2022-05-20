@@ -47,13 +47,16 @@ model=dict(
         depth=50,
         num_stages=4,
         out_indices=(3, ),
-        style='pytorch'),
+        style='pytorch',
+        #norm_cfg=dict(type='SyncBN', requires_grad=True)
+    ),
     neck=dict(type='GlobalAveragePooling'),
     head=dict(
         type='LinearClsHead',
         num_classes=class_number,
         in_channels=2048,
-        init_cfg=dict(type='Normal', layer='Linear', std=0.01)
+        init_cfg=dict(type='Normal', layer='Linear', std=0.01),
+        
     )
 )
 loggers=[

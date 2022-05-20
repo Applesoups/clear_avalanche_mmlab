@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 from avalanche.training.utils import trigger_plugins
 
+from apex import amp
 if TYPE_CHECKING:
     from avalanche.training.templates.supervised import SupervisedTemplate
 
@@ -50,6 +51,7 @@ class BaseSGDTemplate(BaseTemplate):
         evaluator: EvaluationPlugin = default_evaluator,
         eval_every=-1,
         peval_mode="epoch",
+        distributed=False,
     ):
         """Init.
 
@@ -71,6 +73,7 @@ class BaseSGDTemplate(BaseTemplate):
         """
         super().__init__(model=model, device=device, plugins=plugins)
 
+        self.distributed = distributed
         self.optimizer: Optimizer = optimizer
         """ PyTorch optimizer. """
 
@@ -252,8 +255,11 @@ class BaseSGDTemplate(BaseTemplate):
 
     def backward(self):
         """Run the backward pass."""
-        self.loss.backward()
-
+        if self.distributed:
+            with amp.scale_loss(self.loss, self.optimizer) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            self.loss.backward()
     def optimizer_step(self):
         """Execute the optimizer step (weights update)."""
         self.optimizer.step()
