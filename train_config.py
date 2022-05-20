@@ -34,13 +34,13 @@ def main():
     #     print('Computing accuracy on the whole test set')
     #     # test also returns a dictionary which contains all the metric values
     #     results.append(cl_strategy.eval(scenario.test_stream))
-    # EVALUATION_PROTOCOL = cfg.scenario.evaluation_protocol
-    # curr_time = datetime.datetime.now()
-    # time_str = curr_time.strftime("%Y_%m_%d_%T")
-    # ROOT = Path(cfg.save_model.model_root)
-    # ROOT.mkdir(parents=True, exist_ok=True)
-    # MODEL_ROOT=ROOT / time_str
-    # ROOT.mkdir(parents=True, exist_ok=True)
+    EVALUATION_PROTOCOL = cfg.scenario.evaluation_protocol
+    curr_time = datetime.datetime.now()
+    time_str = curr_time.strftime("%Y_%m_%d_%T")
+    ROOT = Path(cfg.save_model.model_root)
+    ROOT.mkdir(parents=True, exist_ok=True)
+    MODEL_ROOT=ROOT / time_str
+    MODEL_ROOT.mkdir(parents=True, exist_ok=True)
 
     print("Starting experiment...")
     results = []
@@ -52,7 +52,7 @@ def main():
         if index % cfg.save_model.frequency == 0:
             torch.save(
                 model.state_dict(),
-                str(MODEL_ROOT / f"model{str(int(index/cfg.save_model.frequency)).zfill(2)}.pth")
+                str(MODEL_ROOT / f"model{str(int(index)).zfill(2)}.pth")
             )
         print("Training completed")
         print(

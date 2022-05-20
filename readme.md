@@ -1,4 +1,4 @@
-# Demo for CLEAR Dataset Training Based on Avalanche and Openmmlab
+gi# Demo for CLEAR Dataset Training Based on Avalanche and Openmmlab
 
 ## Install
 
@@ -180,5 +180,16 @@ cl_strategy=dict(
 )
 ```
 
+### checkpoint 保存
 
+增加了checkpoint的保存设置
+
+```python
+save_model=dict(
+    model_root='models',
+    frequency=2
+)
+```
+
+文件会被保存在model_root下的当前时间文件夹下
 
