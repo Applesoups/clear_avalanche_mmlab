@@ -1,5 +1,4 @@
-from cv2 import PARAM_SCALAR
-
+_base_ = ["./models/resnet50.py"]
 
 dataset_type = 'CLEAR'
 #feature='moco_b0'
@@ -42,15 +41,15 @@ scenario=dict(
 # )
 
 model=dict(
-    backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(3, ),
-        style='pytorch',
-        #norm_cfg=dict(type='SyncBN', requires_grad=True)
-    ),
-    neck=dict(type='GlobalAveragePooling'),
+    # backbone=dict(
+    #     type='ResNet',
+    #     depth=50,
+    #     num_stages=4,
+    #     out_indices=(3, ),
+    #     style='pytorch',
+    #     #norm_cfg=dict(type='SyncBN', requires_grad=True)
+    # ),
+    # neck=dict(type='GlobalAveragePooling'),
     head=dict(
         type='LinearClsHead',
         num_classes=class_number,

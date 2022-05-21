@@ -229,7 +229,7 @@ class SupervisedTemplate(BaseSGDTemplate):
                     **other_dataloader_args
                 )
             else:
-                print('no distributed')
+                #print('no distributed')
                 self.dataloader = TaskBalancedDataLoader(
                     self.adapted_dataset,
                     oversample_small_groups=True,
