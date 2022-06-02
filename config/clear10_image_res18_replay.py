@@ -1,6 +1,6 @@
 import numpy as np
 
-_base_ = ["./models/resnet50.py"]
+_base_ = ["./models/resnet18.py"]
 '''
 some special settings for cl_strategy
 timestamp: 
@@ -28,7 +28,8 @@ img_norm_cfg=dict(
 )
 
 train_pipeline = [
-    dict(type='RandomResizedCrop', size=224),
+    dict(type='Resize', size=224),
+    dict(type='RandomCrop', size=224),
     dict(type='RandomHorizontalFlip', p=0.5),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg)
@@ -72,7 +73,7 @@ model=dict(
     head=dict(
         type='LinearClsHead',
         num_classes=class_number,
-        in_channels=2048,
+        in_channels=512,
         init_cfg=dict(type='Normal', layer='Linear', std=0.01),
         
     )
@@ -87,11 +88,11 @@ loggers=[
 metrics=[
     dict(type='accuracy_metrics',minibatch=True, epoch=True, experience=True, stream=True),
     dict(type='loss_metrics',minibatch=True,epoch=True,experience=True,stream=True),
-    dict(type='timing_metrics',epoch=True,epoch_running=True),
-    dict(type='cpu_usage_metrics',experience=True),
+    # dict(type='timing_metrics',epoch=True,epoch_running=True),
+    # dict(type='cpu_usage_metrics',experience=True),
     dict(type='forgetting_metrics',experience=True, stream=True),
     dict(type='confusion_matrix_metrics',num_classes=class_number, save_image=True, stream=True),
-    dict(type='disk_usage_metrics',minibatch=True, epoch=True, experience=True, stream=True)
+    # dict(type='disk_usage_metrics',minibatch=True, epoch=True, experience=True, stream=True)
 ]
 
 
@@ -118,7 +119,7 @@ cl_strategy=dict(
         lr=0.000625,
         weight_decay=1e-5,
         momentum=0.9
-    )
+    ),
     scheduler=dict(
         type='StepLR',
         step_size=30,
@@ -128,6 +129,11 @@ cl_strategy=dict(
         type='CrossEntropyLoss',
         loss_weight=1.0
     )
+)
+
+pretrain=dict(
+    is_pretrain=True,
+    checkpoint='checkpoints/resnet18-f37072fd_edit.pth'
 )
 
 save_model=dict(

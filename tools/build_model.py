@@ -1,3 +1,4 @@
+import torch
 from avalanche import models
 from mmcv.runner.base_module import BaseModule
 from torch import nn
@@ -20,7 +21,7 @@ class Complete_Model(BaseModule):
             self.model=model_type(**model_cfg)
         else:
             self.model=None
-        if neck is not None:
+        if backbone is not None:
             self.backbone = build_backbone(backbone)
         else:
             self.backbone = None
@@ -55,4 +56,11 @@ def Build_model(cfg):
     if 'type' in model_cfg.keys():
         model_cfg.pop('type')
     model=Complete_Model(**model_cfg)
+    if cfg.pretrain.is_pretrain == True:
+        state_dict=torch.load(cfg.pretrain.checkpoint)
+        state_dict_modify=dict()
+        for key in state_dict.keys():
+            if 'fc' not in key:
+                state_dict_modify[key]=state_dict[key]
+        model.load_state_dict(state_dict_modify,strict=False)
     return model

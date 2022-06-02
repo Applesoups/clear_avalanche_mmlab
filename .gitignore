@@ -2,3 +2,4 @@ dataset
 log.txt
 models
 tb_data
+checkpoints

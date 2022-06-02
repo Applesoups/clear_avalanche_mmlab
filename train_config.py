@@ -6,7 +6,7 @@ import torch.nn
 from tools import Build_scenario, Build_model,Build_eval_plugin, Build_cl_strategy
 import datetime
 import os
-
+import json
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a model')
@@ -16,6 +16,7 @@ def parse_args():
                     help='node rank for distributed training')
     # parser.add_argument('--distributed', default=False, type=bool,
     #                 help='whether to use distributed training')
+    parser.add_argument('--eval',default=False,type=bool,help='wether to eval')
     args = parser.parse_args()
     return args
 
@@ -63,11 +64,18 @@ def main():
 
     print("Starting experiment...")
     results = []
+
+    train_metric = {}
+    test_metric = {}
     print("Current protocol : ", EVALUATION_PROTOCOL)
+    cur_timestep=0
     for index, experience in enumerate(scenario.train_stream):
         print("Start of experience: ", experience.current_experience)
         print("Current Classes: ", experience.classes_in_this_experience)
-        res = cl_strategy.train(experience)
+        #res = cl_strategy.train(experience)
+        if args.eval == False:
+            train_metric[cur_timestep] = cl_strategy.train(experience)
+        test_metric[cur_timestep] = cl_strategy.eval(scenario.test_stream)
         if index % cfg.save_model.frequency == 0:
             torch.save(
                 model.state_dict(),
@@ -78,7 +86,19 @@ def main():
             "Computing accuracy on the whole test set with"
             f" {EVALUATION_PROTOCOL} evaluation protocol"
         )
-        results.append(cl_strategy.eval(scenario.test_stream))
-
+        
+        with open("./experiments/{}/metric/train_metric_{}.json".format(time_str, args.cl_strategy.type), "w") as out_file:
+                    json.dump(train_metric, out_file, indent=6)
+                    
+                    
+        #results.append(cl_strategy.eval(scenario.test_stream))
+        with open("./experiments/{}/metric/test_metric_{}.json".format(time_str, args.cl_strategy.type), "w") as out_file:
+                    # convert tensor to string for json dump
+                    test_metric[cur_timestep]['ConfusionMatrix_Stream/eval_phase/test_stream'] = \
+                        test_metric[cur_timestep]['ConfusionMatrix_Stream/eval_phase/test_stream'].numpy().tolist()
+                    json.dump(test_metric, out_file, indent=6)
+        out_file.close()
+        cur_timestep += 1
+        
 if __name__ == '__main__':
     main()
