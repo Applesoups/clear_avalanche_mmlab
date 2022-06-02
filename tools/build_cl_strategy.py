@@ -7,8 +7,8 @@ from torch.optim import lr_scheduler
 from avalanche.training.plugins.lr_scheduling import LRSchedulerPlugin
 from avalanche.training.plugins.load_best import LoadBestPlugin
 
-from apex import amp
-from apex.parallel import DistributedDataParallel
+#from apex import amp
+#from apex.parallel import DistributedDataParallel
 
 def Build_cl_strategy(cfg, model, device,eval_plugin,args):
     cl_strategy=copy.deepcopy(cfg.cl_strategy)
@@ -32,10 +32,10 @@ def Build_cl_strategy(cfg, model, device,eval_plugin,args):
 
     model=model.to(device)
 
-    if args.distributed:
-        model, optimizer = amp.initialize(model, optimizer)
-        #torch.distributed.init_process_group(backend='nccl')
-        model = DistributedDataParallel(model)
+    # if args.distributed:
+    #     model, optimizer = amp.initialize(model, optimizer)
+    #     #torch.distributed.init_process_group(backend='nccl')
+    #     model = DistributedDataParallel(model)
 
     # strategy=strategy_type(model=model, optimizer=optimizer,criterion=loss, evaluator=eval_plugin,device=device,**cl_strategy)
     return strategy_type(model=model, optimizer=optimizer,criterion=loss, evaluator=eval_plugin,plugins=plugin_list,device=device, distributed=args.distributed, **cl_strategy), model

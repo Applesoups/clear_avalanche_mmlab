@@ -193,3 +193,4 @@ class SupervisedPlugin(BaseSGDPlugin[Template], ABC):
     ) -> CallbackResult:
         """Called after `eval_dataset_adaptation` by the `BaseTemplate`."""
         pass
+

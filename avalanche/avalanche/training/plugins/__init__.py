@@ -13,6 +13,7 @@ from .cope import CoPEPlugin, PPPloss
 from .lfl import LFLPlugin
 from .early_stopping import EarlyStoppingPlugin
 from .lr_scheduling import LRSchedulerPlugin
+from .load_best import LoadBestPlugin
 from .generative_replay import (
     GenerativeReplayPlugin,
     TrainGeneratorAfterExpPlugin,

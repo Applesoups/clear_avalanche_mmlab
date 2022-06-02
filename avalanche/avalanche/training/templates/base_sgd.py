@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from avalanche.training.utils import trigger_plugins
 
-from apex import amp
+#from apex import amp
 if TYPE_CHECKING:
     from avalanche.training.templates.supervised import SupervisedTemplate
 

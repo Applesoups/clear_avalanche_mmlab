@@ -1,3 +1,5 @@
+import numpy as np
+
 _base_ = ["./models/resnet50.py"]
 '''
 some special settings for cl_strategy
@@ -12,7 +14,10 @@ schedular_step: gamma in schedular
 start_lr: lr in optimizer
 '''
 
-
+timestamp = 10
+alpha=np.linspace(0, 2, num=timestamp).tolist()
+temperature=1
+nepoch=70
 
 dataset_type = 'CLEAR'
 #feature='moco_b0'
@@ -102,19 +107,21 @@ metrics=[
 #     warmup_by_epoch=True)
 
 cl_strategy=dict(
-    type='Naive',
+    type='LwF',
+    alpha=alpha,
+    temperature=temperature,
     train_mb_size=batch_size,
     eval_mb_size=batch_size,
-    train_epochs=1,
+    train_epochs=nepoch,
     optimizer = dict(
-        type='AdamW',
-        lr=5e-4*batch_size/512,
-        weight_decay=0.05,
-        eps=1e-8,
-        betas=(0.9, 0.999)),
+        type='SGD',
+        lr=0.000625,
+        weight_decay=1e-5,
+        momentum=0.9
+    )
     scheduler=dict(
         type='StepLR',
-        step_size=60,
+        step_size=30,
         gamma=0.1),
     #optimizer_config = dict(grad_clip=dict(max_norm=5.0))
     loss = dict(
