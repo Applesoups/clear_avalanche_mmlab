@@ -5,13 +5,15 @@ from mmcls.models import losses
 from avalanche.training import supervised
 from torch.optim import lr_scheduler
 from avalanche.training.plugins.lr_scheduling import LRSchedulerPlugin
+from avalanche.training.plugins.load_best import LoadBestPlugin
 
 from apex import amp
 from apex.parallel import DistributedDataParallel
 
 def Build_cl_strategy(cfg, model, device,eval_plugin,args):
     cl_strategy=copy.deepcopy(cfg.cl_strategy)
-    strategy_type=getattr(supervised, cl_strategy.pop('type'))
+    strate=cl_strategy.pop('type')
+    strategy_type=getattr(supervised, strate)
     optim_cfg=cl_strategy.pop('optimizer')
     optimizer_type=getattr(optim, optim_cfg.pop('type'))
     optim_cfg['params']=model.parameters()
@@ -21,7 +23,9 @@ def Build_cl_strategy(cfg, model, device,eval_plugin,args):
     scheduler_type=getattr(lr_scheduler,scheduler_cfg.pop('type'))
     scheduler=scheduler_type(optimizer=optimizer,**scheduler_cfg)
 
-    plugin_list=[LRSchedulerPlugin(scheduler)]
+    #plugin_list=[LRSchedulerPlugin(scheduler)]
+    #plugin_list used in CLEAR demo
+    plugin_list=[LRSchedulerPlugin(scheduler),LoadBestPlugin('train_stream')]
     loss_cfg=cl_strategy.pop('loss')
     loss_type=getattr(losses, loss_cfg.pop('type'))
     loss=loss_type(**loss_cfg).to(device)

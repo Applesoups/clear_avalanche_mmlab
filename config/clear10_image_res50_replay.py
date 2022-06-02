@@ -1,4 +1,18 @@
 _base_ = ["./models/resnet50.py"]
+'''
+some special settings for cl_strategy
+timestamp: 
+    when strate=='JointTraining' and current_mode=='offline':
+    train_epochs=args.nepoch*args.timestamp//3
+    when strate=='LwF': alpha= np.linspace(0,2,num=args.timestamp).tolist()#算出来也没用上啊
+nepoch: for most cases, train_epochs=nepoch
+
+step_schedular_decay: step_size in schedular
+schedular_step: gamma in schedular
+start_lr: lr in optimizer
+'''
+
+
 
 dataset_type = 'CLEAR'
 #feature='moco_b0'

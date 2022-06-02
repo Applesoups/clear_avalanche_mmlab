@@ -49,10 +49,6 @@ class Complete_Model(BaseModule):
             x=self.head(x)
             
         return x
-        
-
-
-    
 
 def Build_model(cfg):
     model_cfg=copy.deepcopy(cfg.model)
