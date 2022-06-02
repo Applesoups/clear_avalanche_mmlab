@@ -88,11 +88,13 @@ loggers=[
 metrics=[
     dict(type='accuracy_metrics',minibatch=True, epoch=True, experience=True, stream=True),
     dict(type='loss_metrics',minibatch=True,epoch=True,experience=True,stream=True),
+
     # dict(type='timing_metrics',epoch=True,epoch_running=True),
     # dict(type='cpu_usage_metrics',experience=True),
     dict(type='forgetting_metrics',experience=True, stream=True),
     dict(type='confusion_matrix_metrics',num_classes=class_number, save_image=True, stream=True),
     # dict(type='disk_usage_metrics',minibatch=True, epoch=True, experience=True, stream=True)
+
 ]
 
 
@@ -119,7 +121,9 @@ cl_strategy=dict(
         lr=0.000625,
         weight_decay=1e-5,
         momentum=0.9
+
     ),
+
     scheduler=dict(
         type='StepLR',
         step_size=30,
