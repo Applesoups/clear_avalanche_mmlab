@@ -135,10 +135,7 @@ cl_strategy=dict(
     )
 )
 
-pretrain=dict(
-    is_pretrain=True,
-    checkpoint='checkpoints/resnet18-f37072fd_edit.pth'
-)
+load_from = 'checkpoints/resnet18-f37072fd_edit.pth'
 
 save_model=dict(
     model_root='models',
