@@ -2,7 +2,10 @@ import copy
 from typing import TYPE_CHECKING
 
 from avalanche.training.plugins.strategy_plugin import SupervisedPlugin
-from avalanche.training.storage_policy import ClassBalancedBuffer
+from avalanche.training.storage_policy import (
+    ClassBalancedBuffer,
+    ReservoirSamplingBuffer,
+    BiasedReservoirSamplingBuffer)
 
 if TYPE_CHECKING:
     from avalanche.training.templates.supervised import SupervisedTemplate
@@ -21,31 +24,41 @@ class GDumbPlugin(SupervisedPlugin):
     https://www.robots.ox.ac.uk/~tvg/publications/2020/gdumb.pdf
     """
 
-    def __init__(self, mem_size: int = 200):
+    def __init__(self,
+                 mem_size: int = 200,
+                 reset: bool = True,
+                 buffer=None):
         super().__init__()
         self.mem_size = mem_size
+        self.reset = reset
 
         # model initialization
         self.buffer = {}
-        self.storage_policy = ClassBalancedBuffer(
-            max_size=self.mem_size, adaptive_size=True
-        )
+        # self.storage_policy = ClassBalancedBuffer(
+        #     max_size=self.mem_size, adaptive_size=True
+        # )
+        assert isinstance(buffer, (
+            ClassBalancedBuffer, ReservoirSamplingBuffer, BiasedReservoirSamplingBuffer
+        )), 'only support ClassBalancedBuffer, ReservoirSamplingBuffer, BiasedReservoirSamplingBuffer'
+        self.storage_policy = buffer
         self.init_model = None
 
     def before_train_dataset_adaptation(
         self, strategy: "SupervisedTemplate", **kwargs
     ):
         """Reset model."""
-        if self.init_model is None:
-            self.init_model = copy.deepcopy(strategy.model)
-        else:
-            strategy.model = copy.deepcopy(self.init_model)
-        strategy.model_adaptation(self.init_model)
+        if self.reset:
+            if self.init_model is None:
+                self.init_model = copy.deepcopy(strategy.model)
+            else:
+                strategy.model = copy.deepcopy(self.init_model)
+            strategy.model_adaptation(self.init_model)
 
     def before_eval_dataset_adaptation(
         self, strategy: "SupervisedTemplate", **kwargs
     ):
-        strategy.model_adaptation(self.init_model)
+        if self.reset:
+            strategy.model_adaptation(self.init_model)
 
     def after_train_dataset_adaptation(
         self, strategy: "SupervisedTemplate", **kwargs

@@ -6,6 +6,7 @@ from avalanche.training import supervised
 from torch.optim import lr_scheduler
 from avalanche.training.plugins.lr_scheduling import LRSchedulerPlugin
 from avalanche.training.plugins.load_best import LoadBestPlugin
+from avalanche.training import storage_policy
 
 #from apex import amp
 #from apex.parallel import DistributedDataParallel
@@ -29,6 +30,13 @@ def Build_cl_strategy(cfg, model, device,eval_plugin,args):
     loss_cfg=cl_strategy.pop('loss')
     loss_type=getattr(losses, loss_cfg.pop('type'))
     loss=loss_type(**loss_cfg).to(device)
+
+    # sampling buffer
+    if cl_strategy.get('buffer'):
+        buffer_cfg = cl_strategy.pop('buffer')
+        buffer_type = getattr(storage_policy, buffer_cfg.pop('type'))
+        buffer = buffer_type(**buffer_cfg)
+        cl_strategy['buffer'] = buffer
 
     model=model.to(device)
 

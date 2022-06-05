@@ -111,6 +111,65 @@ class ReservoirSamplingBuffer(ExemplarsBuffer):
         self._buffer_weights = self._buffer_weights[: self.max_size]
 
 
+class BiasedReservoirSamplingBuffer(ExemplarsBuffer):
+    def __init__(self, max_size: int, alpha_mode: str, alpha_value: float):
+        """Buffer updated with biased reservoir sampling."""
+        super().__init__(max_size)
+        assert alpha_mode in ['Fixed', 'Dynamic']
+        self.alpha_mode = alpha_mode
+        self.alpha_value = float(alpha_value)
+        self.buffer_index_list = []
+        self.history_data = AvalancheConcatDataset([])
+        # INVARIANT: _buffer_weights is always sorted.
+        # self._buffer_weights = torch.zeros(0)
+
+    def update(self, strategy: "SupervisedTemplate", **kwargs):
+        """Update buffer."""
+        self.current_experience_id = strategy.experience.current_experience
+        self.update_from_dataset(strategy.experience.dataset)
+
+    def update_from_dataset(self, new_data: AvalancheDataset):
+        """Update the buffer using the given dataset."""
+        # if size of incoming data is greater than the memory, we first extract
+        # size=(memory size) from the incoming data and then sample from the incoming
+        # data with alpha bias sampling
+        if len(new_data) > self.max_size:
+            import numpy as np
+            sample_index = np.random.choice(len(new_data), self.max_size, replace=False).tolist()
+            new_data = AvalancheSubset(new_data, sample_index)
+        if self.current_experience_id == 0:
+            self.buffer = AvalancheConcatDataset([self.buffer, new_data])
+            self.resize(None, self.max_size)
+        else:
+            new_weights = torch.rand(len(new_data))
+            new_weights_enum = [(i,new_weights[i]) for i in range(len(new_weights))]
+            space_in_buffer = self.max_size-len(self.buffer)
+            if self.alpha_mode == 'Fixed':
+                # alpha * k / n = alpha * k / k * i = alpha / i
+                prob = self.alpha_value / (self.current_experience_id + 1)
+            elif self.alpha_mode == 'Dynamic':
+                prob = self.alpha_value
+            new_items_to_add_to_buffer = list(filter(lambda x: x[1] <= prob, new_weights_enum))
+            new_items_to_add_to_buffer = list(map(lambda x: x[0], new_items_to_add_to_buffer))
+            new_data_to_add = AvalancheSubset(new_data, new_items_to_add_to_buffer)
+            if len(new_data_to_add) <= space_in_buffer:
+                self.buffer = AvalancheConcatDataset([self.buffer,new_data_to_add])
+            else:
+                self.buffer = AvalancheSubset(self.buffer, torch.arange(len(self.buffer) - len(new_data_to_add)))
+                self.buffer = AvalancheConcatDataset([self.buffer, new_data_to_add])
+        print('Using bias_reservoir_sampling')
+        print("alpha_mode {} ".format(self.alpha_mode))
+        print("alpha_value {} ".format(self.alpha_value))
+        assert len(self.buffer) == self.max_size
+
+    def resize(self, strategy, new_size):
+        """Update the maximum size of the buffer."""
+        self.max_size = new_size
+        if len(self.buffer) <= self.max_size:
+            return
+        self.buffer = AvalancheSubset(self.buffer, torch.arange(self.max_size))
+
+
 class BalancedExemplarsBuffer(ExemplarsBuffer):
     """A buffer that stores exemplars for rehearsal in separate groups.
 

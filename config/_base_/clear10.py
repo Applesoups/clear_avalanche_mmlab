@@ -5,7 +5,8 @@ img_norm_cfg = dict(
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
 )
 train_pipeline = [
-    dict(type='RandomResizedCrop', size=224),
+    dict(type='Resize', size=224),
+    dict(type='RandomCrop', size=224),
     dict(type='RandomHorizontalFlip', p=0.5),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg)

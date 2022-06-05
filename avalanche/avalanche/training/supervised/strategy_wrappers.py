@@ -568,6 +568,8 @@ class GDumb(SupervisedTemplate):
         plugins: Optional[List[SupervisedPlugin]] = None,
         evaluator: EvaluationPlugin = default_evaluator,
         eval_every=-1,
+        reset=True,
+        buffer=None,
         **base_kwargs
     ):
         """Init.
@@ -592,7 +594,7 @@ class GDumb(SupervisedTemplate):
             :class:`~avalanche.training.BaseTemplate` constructor arguments.
         """
 
-        gdumb = GDumbPlugin(mem_size)
+        gdumb = GDumbPlugin(mem_size, reset=reset, buffer=buffer)
         if plugins is None:
             plugins = [gdumb]
         else:

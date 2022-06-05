@@ -76,11 +76,12 @@ def main():
         if args.eval == False:
             train_metric[index] = cl_strategy.train(experience)
         test_metric[index] = cl_strategy.eval(scenario.test_stream)
-        if index % cfg.save_model.frequency == 0:
-            torch.save(
-                model.state_dict(),
-                str(MODEL_ROOT / f"model{str(int(index)).zfill(2)}.pth")
-            )
+
+        if cfg.get('checkpoint_config'):
+            if (index + 1) % cfg.checkpoint_config.interval == 0:
+                ckpt_path = MODEL_ROOT / f'exp_{index + 1}.pth'
+                print('Saving checkpoint to', ckpt_path)
+                torch.save(model.state_dict(), ckpt_path)
         print("Training completed")
         print(
             "Computing accuracy on the whole test set with"
@@ -109,7 +110,7 @@ def main():
 
     print('Saving evaluation results...')
     with open(MODEL_ROOT / 'eval.json', 'w') as f:
-        json.dump({'train': train_metric, 'test': test_metric}, f)
+        json.dump({'train': train_metric, 'test': test_metric}, f, indent=4)
 
 
 if __name__ == '__main__':
