@@ -1,6 +1,6 @@
 _base_ = [
-    './_base_/clear10.py',
-    './_base_/lwf.py'
+    '../_base_/clear10.py',
+    '../_base_/lwf.py'
 ]
 
 name = 'clear10_moco-b0_lwf'
@@ -17,5 +17,5 @@ work_dir = f'./work_dirs/{name}'
 loggers = [
     dict(type='TextLogger', file=f'{work_dir}/log.txt'),
     dict(type='InteractiveLogger'),
-    dict(type='WandBLogger', project_name='avalanche', run_name=name)
+    #dict(type='WandBLogger', project_name='avalanche', run_name=name)
 ]

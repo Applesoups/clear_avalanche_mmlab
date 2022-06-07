@@ -1,17 +1,14 @@
 _base_ = [
-    './_base_/clear10.py',
-    './_base_/reservoir.py'
+    '../_base_/clear10.py',
+    '../_base_/lwf.py'
 ]
 
-name = 'clear10_moco-b0_br-finetune'
+name = 'clear10_moco-b0_lwf_iid'
 
-scenario = dict(feature_type='moco_b0')
-
-cl_strategy = dict(
-    buffer=dict(
-        type='BiasedReservoirSamplingBuffer',
-        alpha_mode='Dynamic',
-        alpha_value=1.0))
+scenario = dict(
+    feature_type='moco_b0',
+    evaluation_protocol='iid',
+    seed=0)
 
 model = dict(
     head=dict(
@@ -21,6 +18,7 @@ model = dict(
 
 work_dir = f'./work_dirs/{name}'
 loggers = [
+    dict(type='TensorboardLogger'),
     dict(type='TextLogger', file=f'{work_dir}/log.txt'),
     dict(type='InteractiveLogger'),
     dict(type='WandBLogger', project_name='avalanche', run_name=name)

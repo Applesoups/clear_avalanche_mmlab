@@ -27,14 +27,12 @@ from pathlib import Path
 from typing import Union, Any, Optional
 from typing_extensions import Literal
 
-from avalanche.benchmarks.classic.classic_benchmarks_utils import (
-    check_vision_benchmark,
-)
 from avalanche.benchmarks.datasets.clear import (
-    CLEARImage,
-    CLEARFeature,
+    _CLEARImage,
+    _CLEARFeature,
     SEED_LIST,
     CLEAR_FEATURE_TYPES,
+    _CLEAR_DATA_SPLITS
 )
 from avalanche.benchmarks.scenarios.generic_benchmark_creation import (
     create_generic_benchmark_from_paths,
@@ -44,8 +42,10 @@ from avalanche.benchmarks.scenarios.generic_benchmark_creation import (
 EVALUATION_PROTOCOLS = ["iid", "streaming"]
 
 
+
 def CLEAR(
     *,
+    data_name: str = "clear10",
     evaluation_protocol: str = "streaming",
     feature_type: str = None,
     seed: int = None,
@@ -54,39 +54,30 @@ def CLEAR(
     dataset_root: Union[str, Path] = None,
 ):
     """
-    Creates a Domain-Incremental benchmark for CLEAR10
-    with 10 illustrative classes and an 11th background class.
-
+    Creates a Domain-Incremental benchmark for CLEAR 10 & 100
+    with 10 & 100 illustrative classes and an n+1 th background class.
     If the dataset is not present in the computer, **this method will be
     able to automatically download** and store it.
-
     This generator supports benchmark construction of both 'iid' and 'streaming'
     evaluation_protocol. The main difference is:
-
     'iid': Always sample testset from current task, which requires
         splitting the data into 7:3 train:test with a given random seed.
     'streaming': Use all data of next task as the testset for current task,
         which does not split the data and does not require random seed.
-
-
     The generator supports both Image and Feature (Tensor) datasets.
     If feature_type == None, then images will be used.
     If feature_type is specified, then feature tensors will be used.
-
     The benchmark instance returned by this method will have two fields,
     `train_stream` and `test_stream`, which can be iterated to obtain
     training and test :class:`Experience`. Each Experience contains the
     `dataset` and the associated task label.
-
     Note that the train/test streams will still be data of current task,
     regardless of whether evaluation protocol is 'iid' or 'streaming'.
     For 'iid' protocol, train stream is 70% of current task data,
     and test stream is 30% of current task data.
     For 'streaming' protocol, train stream is 100% of current task data,
     and test stream is just a duplicate of train stream.
-
     The task label "0" will be assigned to each experience.
-
     :param evaluation_protocol: Choose from ['iid', 'streaming']
         if chosen 'iid', then must specify a seed between [0,1,2,3,4];
         if chosen 'streaming', then the seed will be ignored.
@@ -107,14 +98,11 @@ def CLEAR(
         comprehensive list of possible transformations). Defaults to None.
     :param dataset_root: The root path of the dataset.
         Defaults to None, which means that the default location for
-        'clear10' will be used.
-
+        str(data_name) will be used.
     :returns: a properly initialized :class:`GenericCLScenario` instance.
     """
-    data_name = "clear10"
-    """
-        We will support clear100 by May, 2022
-    """
+    print (data_name)
+    assert data_name in _CLEAR_DATA_SPLITS
 
     assert evaluation_protocol in EVALUATION_PROTOCOLS, (
         "Must specify a evaluation protocol from " f"{EVALUATION_PROTOCOLS}"
@@ -135,7 +123,7 @@ def CLEAR(
         raise NotImplementedError()
 
     if feature_type is None:
-        clear_dataset_train = CLEARImage(
+        clear_dataset_train = _CLEARImage(
             root=dataset_root,
             data_name=data_name,
             download=True,
@@ -143,7 +131,7 @@ def CLEAR(
             seed=seed,
             transform=train_transform,
         )
-        clear_dataset_test = CLEARImage(
+        clear_dataset_test = _CLEARImage(
             root=dataset_root,
             data_name=data_name,
             download=True,
@@ -168,7 +156,7 @@ def CLEAR(
             eval_transform=eval_transform,
         )
     else:
-        clear_dataset_train = CLEARFeature(
+        clear_dataset_train = _CLEARFeature(
             root=dataset_root,
             data_name=data_name,
             download=True,
@@ -176,7 +164,7 @@ def CLEAR(
             split=train_split,
             seed=seed,
         )
-        clear_dataset_test = CLEARFeature(
+        clear_dataset_test = _CLEARFeature(
             root=dataset_root,
             data_name=data_name,
             download=True,
@@ -207,14 +195,12 @@ class CLEARMetric():
     
     def get_metrics(self, matrix):
         """Given an accuracy matrix, returns the 5 metrics used in CLEAR paper
-
         These are:
             'in_domain' : In-domain accuracy (avg of diagonal)
             'next_domain' : In-domain accuracy (avg of superdiagonal)
             'accuracy' : Accuracy (avg of diagonal + lower triangular)
             'backward_transfer' : BwT (avg of lower triangular)
             'forward_transfer' : FwT (avg of upper triangular)
-
         :param matrix: Accuracy matrix, 
             e.g., matrix[5][0] is the test accuracy on 0-th-task at timestamp 5
         :return: A dictionary containing these 5 metrics
@@ -273,6 +259,7 @@ class CLEARMetric():
         r, _ = matrix.shape
         res = [matrix[i, j] for i in range(r) for j in range(i)]
         return sum(res) / len(res)
+
 
 
 __all__ = ["CLEAR", "CLEARMetric"]

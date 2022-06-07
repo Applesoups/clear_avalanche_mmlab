@@ -81,6 +81,8 @@ class LwFPlugin(SupervisedPlugin):
         """
         Add distillation loss
         """
+        #print(len(self.alpha))
+        #print(strategy.clock.train_exp_counter)
         alpha = (
             self.alpha[strategy.clock.train_exp_counter]
             if isinstance(self.alpha, (list, tuple))

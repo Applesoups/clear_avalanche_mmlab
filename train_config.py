@@ -68,8 +68,10 @@ def main():
     train_metric = {}
     test_metric = {}
     print("Current protocol : ", EVALUATION_PROTOCOL)
-
+    print('training stream length: ',len(scenario.train_stream))
     for index, experience in enumerate(scenario.train_stream):
+        # if index==10:
+        #     break
         print("Start of experience: ", experience.current_experience)
         print("Current Classes: ", experience.classes_in_this_experience)
         # res = cl_strategy.train(experience)

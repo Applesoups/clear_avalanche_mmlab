@@ -6,3 +6,4 @@ checkpoints
 wandb
 work_dirs
 .idea
+experiments

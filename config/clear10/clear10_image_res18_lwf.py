@@ -1,6 +1,6 @@
 _base_ = [
-    './_base_/clear10.py',
-    './_base_/lwf.py'
+    '../_base_/clear10.py',
+    '../_base_/lwf.py'
 ]
 
 name = 'clear10_image_res18_lwf'
