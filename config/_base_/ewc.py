@@ -1,10 +1,15 @@
 batch_size = 256
 num_epochs = 100
 
-buffer_size = 3300
+ewc_lambda = 0.4
+ewc_mode = 'online'
+ewc_decay = 0.1
 
 cl_strategy = dict(
-    type='GDumb',
+    type='EWC',
+    ewc_lambda=ewc_lambda,
+    mode=ewc_mode,
+    decay_factor=ewc_decay,
     train_mb_size=batch_size,
     eval_mb_size=batch_size,
     train_epochs=num_epochs,
@@ -17,10 +22,6 @@ cl_strategy = dict(
         type='StepLR',
         step_size=60,
         gamma=0.1),
-    reset=False,
-    buffer=dict(
-        type='ReservoirSamplingBuffer',
-        max_size=buffer_size),
     loss=dict(
         type='CrossEntropyLoss',
         loss_weight=1.0))

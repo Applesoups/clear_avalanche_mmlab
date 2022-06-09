@@ -1,5 +1,5 @@
 dataset_type = 'CLEAR'
-num_classes = 11
+data_name = 'clear10'
 
 img_norm_cfg = dict(
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
@@ -20,7 +20,7 @@ test_pipeline = [
 
 scenario = dict(
     dataset_type=dataset_type,
-    data_name='clear10',
+    data_name=data_name,
     train_transform=train_pipeline,
     eval_transform=test_pipeline,
     dataset_root='dataset/CLEAR-10-PUBLIC/',

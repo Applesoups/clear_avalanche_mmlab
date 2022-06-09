@@ -697,6 +697,7 @@ class AGEM(SupervisedTemplate):
         criterion,
         patterns_per_exp: int,
         sample_size: int = 64,
+        reservoir: bool = False,
         train_mb_size: int = 1,
         train_epochs: int = 1,
         eval_mb_size: int = None,
@@ -730,7 +731,7 @@ class AGEM(SupervisedTemplate):
             :class:`~avalanche.training.BaseTemplate` constructor arguments.
         """
 
-        agem = AGEMPlugin(patterns_per_exp, sample_size)
+        agem = AGEMPlugin(patterns_per_exp, sample_size, reservoir)
         if plugins is None:
             plugins = [agem]
         else:

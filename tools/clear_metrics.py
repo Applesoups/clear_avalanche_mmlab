@@ -2,8 +2,8 @@ import numpy as np
 from avalanche.benchmarks.classic.clear import CLEARMetric
 
 
-def compute_clear_metrics(test_metrics: dict, num_exp: int = 10):
-    #assert len(test_metrics) == num_exp
+def compute_clear_metrics(test_metrics: dict):
+    num_exp = len(test_metrics)
     res = np.zeros((num_exp, num_exp), dtype=float)
     for index in range(num_exp):
         metrics = test_metrics[index]

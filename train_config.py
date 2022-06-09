@@ -108,6 +108,8 @@ def main():
         clear_metrics = compute_clear_metrics(test_metric)
         for k, v in clear_metrics.items():
             print(f'{k}: {v}')
+        import wandb
+        wandb.log(clear_metrics)
         test_metric['clear_metrics'] = clear_metrics
 
     print('Saving evaluation results...')

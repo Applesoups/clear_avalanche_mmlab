@@ -10,6 +10,7 @@ from avalanche.benchmarks.utils.data_loader import (
 )
 from avalanche.models import avalanche_forward
 from avalanche.training.plugins.strategy_plugin import SupervisedPlugin
+from avalanche.training.storage_policy import ReservoirSamplingBuffer
 
 
 class AGEMPlugin(SupervisedPlugin):
@@ -22,7 +23,7 @@ class AGEMPlugin(SupervisedPlugin):
     This plugin does not use task identities.
     """
 
-    def __init__(self, patterns_per_experience: int, sample_size: int):
+    def __init__(self, patterns_per_experience: int, sample_size: int, reservoir: bool):
         """
         :param patterns_per_experience: number of patterns per experience in the
             memory.
@@ -42,6 +43,12 @@ class AGEMPlugin(SupervisedPlugin):
 
         self.reference_gradients = None
         self.memory_x, self.memory_y = None, None
+
+        if reservoir:
+            self.reservoir_buffer = ReservoirSamplingBuffer(self.sample_size)
+            self.reservoir = True
+        else:
+            self.reservoir = False
 
     def before_training_iteration(self, strategy, **kwargs):
         """
@@ -128,7 +135,11 @@ class AGEMPlugin(SupervisedPlugin):
             dataset, _ = random_split(
                 dataset, [self.patterns_per_experience, removed_els]
             )
-        self.buffers.append(dataset)
+        if self.reservoir and len(self.buffers) != 0:
+            self.reservoir_buffer.update_from_dataset(dataset)
+            self.buffers[0] = self.reservoir_buffer.buffer
+        else:
+            self.buffers.append(dataset)
         persistent_workers = num_workers > 0
         self.buffer_dataloader = GroupBalancedInfiniteDataLoader(
             self.buffers,

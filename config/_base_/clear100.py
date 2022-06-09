@@ -1,6 +1,5 @@
 dataset_type = 'CLEAR'
-data_name='clear100_cvpr2022'
-#num_classes = 11
+data_name = 'clear100_cvpr2022'
 
 img_norm_cfg = dict(
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
