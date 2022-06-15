@@ -17,7 +17,7 @@ cl_strategy = dict(
 model = dict(
     head=dict(
         type='LinearClsHead',
-        num_classes=101,
+        num_classes=100,
         in_channels=2048))
 
 work_dir = f'./work_dirs/{name}'

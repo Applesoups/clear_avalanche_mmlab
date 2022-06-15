@@ -3,6 +3,7 @@ from mmcv.runner.base_module import BaseModule
 from torch import nn
 from mmcls.models.builder import build_backbone, build_neck, build_head
 import copy
+from tools.heads import *
 
 
 class Complete_Model(BaseModule):
@@ -11,15 +12,15 @@ class Complete_Model(BaseModule):
                  backbone=None,
                  neck=None,
                  head=None,
-                 torchmodel=None,
+                 # torchmodel=None,
                  init_cfg=None):
         super(Complete_Model, self).__init__(init_cfg)
-        if torchmodel is not None:
-            model_cfg = copy.deepcopy(torchmodel)
-            model_type = getattr(nn, model_cfg.pop('type'))
-            self.model = model_type(**model_cfg)
-        else:
-            self.model = None
+        # if torchmodel is not None:
+        #     model_cfg = copy.deepcopy(torchmodel)
+        #     model_type = getattr(nn, model_cfg.pop('type'))
+        #     self.model = model_type(**model_cfg)
+        # else:
+        #     self.model = None
         if backbone is not None:
             self.backbone = build_backbone(backbone)
         else:

@@ -1,26 +1,22 @@
 _base_ = [
-    '../_base_/clear100.py',
-    '../_base_/si.py'
+    '../_base_/clear10.py',
+    '../_base_/lwf.py'
 ]
 
-name = 'clear100_moco-b0_si'
-
-num_epochs = 200
+name = 'clear10_moco-b0_cosine_lwf'
 
 scenario = dict(feature_type='moco_b0')
 
-cl_strategy = dict(train_epochs=num_epochs)
-
 model = dict(
     head=dict(
-        type='LinearClsHead',
-        num_classes=100,
+        type='CosineDistanceHead',
+        num_classes=11,
         in_channels=2048))
 
 work_dir = f'./work_dirs/{name}'
 loggers = [
     dict(type='TextLogger', file=f'{work_dir}/log.txt'),
     dict(type='InteractiveLogger'),
-    dict(type='WandBLogger', project_name='clear100', run_name=name,
+    dict(type='WandBLogger', project_name='clear10', run_name=name,
          params=dict(entity='clear_avalanche_mmlab'))
 ]

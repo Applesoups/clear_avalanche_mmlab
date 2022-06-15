@@ -1,17 +1,19 @@
 _base_ = [
-    '../_base_/clear100.py',
+    '../_base_/clear10.py',
     '../_base_/reservoir.py'
 ]
 
-name = 'clear100_moco-b0_br-finetune'
+name = 'clear10-1shot_moco-b0_cosine_br-finetune'
 
-num_epochs = 200
-buffer_size = 10000  # TODO: different bucket sizes for clear100?
+shot = 1
+scenario = dict(
+    feature_type='moco_b0',
+    evaluation_protocol='iid',
+    seed=0,
+    shot=shot)
 
-scenario = dict(feature_type='moco_b0')
-
+buffer_size = shot * 11
 cl_strategy = dict(
-    train_epochs=num_epochs,
     buffer=dict(
         type='BiasedReservoirSamplingBuffer',
         max_size=buffer_size,
@@ -20,14 +22,14 @@ cl_strategy = dict(
 
 model = dict(
     head=dict(
-        type='LinearClsHead',
-        num_classes=100,
+        type='CosineDistanceHead',
+        num_classes=11,
         in_channels=2048))
 
 work_dir = f'./work_dirs/{name}'
 loggers = [
     dict(type='TextLogger', file=f'{work_dir}/log.txt'),
     dict(type='InteractiveLogger'),
-    dict(type='WandBLogger', project_name='clear100', run_name=name,
+    dict(type='WandBLogger', project_name='clear10', run_name=name,
          params=dict(entity='clear_avalanche_mmlab'))
 ]

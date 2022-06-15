@@ -52,17 +52,6 @@ def main():
     eval_plugin = Build_eval_plugin(cfg, scenario)
     cl_strategy, model = Build_cl_strategy(cfg, model, args.device, eval_plugin, args)
 
-    # print('Starting experiment...')
-    # results = []
-    # for experience in scenario.train_stream:
-    #     # train returns a dictionary which contains all the metric values
-    #     res = cl_strategy.train(experience)
-    #     print('Training completed')
-
-    #     print('Computing accuracy on the whole test set')
-    #     # test also returns a dictionary which contains all the metric values
-    #     results.append(cl_strategy.eval(scenario.test_stream))
-
     print("Starting experiment...")
 
     train_metric = {}
@@ -92,16 +81,6 @@ def main():
         # convert tensor to string for json dump
         # test_metric[cur_timestep]['ConfusionMatrix_Stream/eval_phase/test_stream'] = \
         #     test_metric[cur_timestep]['ConfusionMatrix_Stream/eval_phase/test_stream'].numpy().tolist()
-
-    # with open("./experiments/{}/metric/train_metric_{}.json".format(time_str, args.cl_strategy.type), "w") as out_file:
-    #      json.dump(train_metric, out_file, indent=6)
-    #
-    # #results.append(cl_strategy.eval(scenario.test_stream))
-    # # compute clear metrics
-    # clear_metrics = compute_clear_metrics(test_metric)
-    # test_metric['clear_metrics'] = clear_metrics
-    # with open("./experiments/{}/metric/test_metric_{}.json".format(time_str, args.cl_strategy.type), "w") as out_file:
-    #     json.dump(test_metric, out_file, indent=6)
 
     if cfg.dataset_type == 'CLEAR':
         print('Computing CLEAR metrics...')

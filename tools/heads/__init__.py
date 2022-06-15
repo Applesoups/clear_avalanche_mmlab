@@ -1,3 +1,3 @@
-from .cl_head import LinearClsHead
+from .cosine_distance_head import CosineDistanceHead
 
-__all__=[LinearClsHead]
+__all__ = ['CosineDistanceHead']
