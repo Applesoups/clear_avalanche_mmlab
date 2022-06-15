@@ -167,6 +167,7 @@ class _CLEARImage(CLEARDataset):
         verbose: bool = True,
         split: str = "all",
         seed: int = None,
+        shot: int = None,
         transform=None,
         target_transform=None,
         loader=default_loader,
@@ -201,6 +202,7 @@ class _CLEARImage(CLEARDataset):
         else:
             assert seed in SEED_LIST
         self.seed = seed
+        self.shot = shot
         self.transform = transform
         self.target_transform = target_transform
         self.loader = loader
@@ -225,8 +227,9 @@ class _CLEARImage(CLEARDataset):
         if self.split == "all":
             filelist_folder_path = train_folder_path / "filelists"
         else:
+            split_path = 'testset_ratio_0.3' if self.shot is None else f'{self.shot}_shot'
             filelist_folder_path = (
-                train_folder_path / "testset_ratio_0.3" / f"split_{self.seed}"
+                    train_folder_path / split_path / f"split_{self.seed}"
             )
 
         filelist_name = f"{self.split}.txt"
@@ -291,6 +294,7 @@ class _CLEARFeature(CLEARDataset):
         verbose: bool = True,
         split: str = "all",
         seed: int = None,
+        shot: int = None,
         feature_type: str = "moco_b0",
         target_transform=None,
     ):
@@ -329,6 +333,7 @@ class _CLEARFeature(CLEARDataset):
         else:
             assert seed in SEED_LIST
         self.seed = seed
+        self.shot = shot
 
         self.feature_type = feature_type
         assert feature_type in CLEAR_FEATURE_TYPES[data_name]
@@ -348,8 +353,9 @@ class _CLEARFeature(CLEARDataset):
         feature_folder_path = train_folder_path / "features" / self.feature_type
 
         if self.split in ["train", "test"]:
+            split_path = 'testset_ratio_0.3' if self.shot is None else f'{self.shot}_shot'
             split_folder_path = (
-                train_folder_path / "testset_ratio_0.3" / f"split_{self.seed}"
+                    train_folder_path / split_path / f"split_{self.seed}"
             )
 
             split_name = f"{self.split}_indices.json"

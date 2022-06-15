@@ -49,6 +49,7 @@ def CLEAR(
     evaluation_protocol: str = "streaming",
     feature_type: str = None,
     seed: int = None,
+    shot: int = None,
     train_transform: Optional[Any] = None,
     eval_transform: Optional[Any] = None,
     dataset_root: Union[str, Path] = None,
@@ -129,6 +130,7 @@ def CLEAR(
             download=True,
             split=train_split,
             seed=seed,
+            shot=shot,
             transform=train_transform,
         )
         clear_dataset_test = _CLEARImage(
@@ -137,6 +139,7 @@ def CLEAR(
             download=True,
             split=test_split,
             seed=seed,
+            shot=shot,
             transform=eval_transform,
         )
         train_samples = clear_dataset_train.get_paths_and_targets(
@@ -163,6 +166,7 @@ def CLEAR(
             feature_type=feature_type,
             split=train_split,
             seed=seed,
+            shot=shot
         )
         clear_dataset_test = _CLEARFeature(
             root=dataset_root,
@@ -171,6 +175,7 @@ def CLEAR(
             feature_type=feature_type,
             split=test_split,
             seed=seed,
+            shot=shot
         )
         train_samples = clear_dataset_train.tensors_and_targets
         test_samples = clear_dataset_test.tensors_and_targets
