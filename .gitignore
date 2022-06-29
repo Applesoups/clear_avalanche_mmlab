@@ -1,9 +1,9 @@
 dataset
 log.txt
-models
 tb_data
 checkpoints
 wandb
 work_dirs
 .idea
 experiments
+/tools/heads/

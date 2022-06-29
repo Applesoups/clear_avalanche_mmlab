@@ -155,12 +155,13 @@ class BiasedReservoirSamplingBuffer(ExemplarsBuffer):
             if len(new_data_to_add) <= space_in_buffer:
                 self.buffer = AvalancheConcatDataset([self.buffer,new_data_to_add])
             else:
-                self.buffer = AvalancheSubset(self.buffer, torch.arange(len(self.buffer) - len(new_data_to_add)))
+                subset_size = max(0, len(self.buffer) - len(new_data_to_add))
+                self.buffer = AvalancheSubset(self.buffer, torch.arange(subset_size))
                 self.buffer = AvalancheConcatDataset([self.buffer, new_data_to_add])
         print('Using bias_reservoir_sampling')
         print("alpha_mode {} ".format(self.alpha_mode))
         print("alpha_value {} ".format(self.alpha_value))
-        assert len(self.buffer) == self.max_size
+        # assert len(self.buffer) == self.max_size
 
     def resize(self, strategy, new_size):
         """Update the maximum size of the buffer."""

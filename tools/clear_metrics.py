@@ -3,6 +3,7 @@ from avalanche.benchmarks.classic.clear import CLEARMetric
 
 
 def compute_clear_metrics(test_metrics: dict, **kwargs):
+    """Compute metrics used in CLEAR paper."""
     num_exp = len(test_metrics)
     res = np.zeros((num_exp, num_exp), dtype=float)
     for index in range(num_exp):
@@ -19,12 +20,16 @@ def compute_clear_metrics(test_metrics: dict, **kwargs):
 
     # other metrics
     for key in kwargs:
-        clear_metric[key] = eval(f'{key}(res)')
+        try:
+            clear_metric[key] = eval(f'{key}(res)')
+        except NameError:
+            print(f"Warning: metric '{key}' not found")
 
     return clear_metric
 
 
 def final_domain(matrix):
+    assert matrix.shape[0] == matrix.shape[1]
     r, _ = matrix.shape
     res = [matrix[i, -1] for i in range(r - 1)]
     return sum(res) / (r - 1)

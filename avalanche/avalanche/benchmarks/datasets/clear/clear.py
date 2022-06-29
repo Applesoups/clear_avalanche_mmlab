@@ -29,8 +29,9 @@ from avalanche.benchmarks.datasets.clear import clear_data
 _CLEAR_DATA_SPLITS = {"clear10", "clear100_cvpr2022"}
 
 CLEAR_FEATURE_TYPES = {
-    "clear10": ["moco_b0", "moco_imagenet", "byol_imagenet", "imagenet", "intern_r50", "bamboo_r50"],
-    "clear100_cvpr2022": ["moco_b0"]
+    "clear10": ["moco_b0", "moco_imagenet", "byol_imagenet", "imagenet",
+                "intern_r50", "bamboo_r50", "intern_vitb", "mae_vit_b"],
+    "clear100_cvpr2022": ["moco_b0", "byol_imagenet", "imagenet", "intern_r50"]
 }
 
 SPLIT_OPTIONS = ["all", "train", "test"]

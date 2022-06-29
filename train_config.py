@@ -32,6 +32,9 @@ def main():
     ROOT.mkdir(parents=True, exist_ok=True)
     MODEL_ROOT = ROOT / time_str
     MODEL_ROOT.mkdir(parents=True, exist_ok=True)
+    for logger in cfg.loggers:
+        if logger['type'] == 'TextLogger' and 'file' not in logger:
+            logger['file'] = logger.get('file', ROOT / f'{time_str}.log')
 
     scenario = Build_scenario(cfg)
     model = Build_model(cfg)
@@ -84,7 +87,7 @@ def main():
 
     if cfg.dataset_type == 'CLEAR':
         print('Computing CLEAR metrics...')
-        clear_metrics = compute_clear_metrics(test_metric)
+        clear_metrics = compute_clear_metrics(test_metric, final_domain=True)
         for k, v in clear_metrics.items():
             print(f'{k}: {v}')
         import wandb
