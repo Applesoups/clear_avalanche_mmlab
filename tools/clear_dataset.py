@@ -3,7 +3,7 @@ import random
 from tqdm import tqdm
 from pathlib import Path
 from collections import defaultdict
-from typing import Union, Sequence, Mapping, Callable
+from typing import Union, Sequence, Callable
 
 import torch
 import torchvision.models as models
@@ -152,7 +152,7 @@ def get_pretrained_features(
         folder_path: str,
         feature_name: str,
         checkpoint_path: str = None,
-        arch: Union[str, Mapping] = 'resnet50',
+        arch: Union[str, dict] = 'resnet50',
         bucket_0: bool = False):
     """Compute and save features of pretrained model for CLEAR.
     Check https://github.com/linzhiqiu/continual-learning for more details.
@@ -242,6 +242,8 @@ def get_metadata(
     with open(folder_path / 'class_names.txt') as f:
         class_names = f.read().splitlines()
     bucket_indices = [str(i + 1) for i in range(10)]
+    if (metadata_path / '0').exists():
+        bucket_indices.insert(0, '0')
 
     res = {cls: {b_idx: [] for b_idx in bucket_indices} for cls in class_names}
     for b_idx in bucket_indices:
@@ -273,8 +275,8 @@ def create_dataset(
         data = sum((lst for lst in metadata[cls].values()), [])
         data = process(data)
         len_per_bucket = len(data) / num_buckets
-        if not len_per_bucket.is_integer():
-            raise ValueError('Number of buckets is not divisible by the number of images.')
+        # if not len_per_bucket.is_integer():
+        #     raise ValueError('Number of images is not divisible by num_buckets.')
         len_per_bucket = int(len_per_bucket)
         for b_idx in range(num_buckets):
             for img in data[b_idx * len_per_bucket: (b_idx + 1) * len_per_bucket]:

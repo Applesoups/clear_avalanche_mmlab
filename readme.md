@@ -44,7 +44,7 @@ python train_config.py config/demo.py --device cuda
 
 代码整体框架依照avalanche框架进行搭建，config则按照mmlab的风格，将各个模块可调参数拆分出来进行控制。
 
-### _base_
+### \_base\_
 
 参考mmlab的config格式，可以使用`_base_`列表来包括一些较为重复的参数。
 
